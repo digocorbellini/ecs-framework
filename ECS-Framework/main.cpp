@@ -1,4 +1,14 @@
 #include <SFML/Graphics.hpp>
+#include "Components.h"
+
+using namespace sf;
+
+#define MAX_ENTITIES 30
+
+struct Components
+{
+    EntityTransform transforms[MAX_ENTITIES];
+};
 
 int main()
 {
