@@ -21,7 +21,7 @@ struct PhysicsBody
 struct Renderer
 {
 	Sprite sprite;
-	
+
 	bool isAnimated;
 	float frameRate;
 
