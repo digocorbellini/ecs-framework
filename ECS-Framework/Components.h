@@ -2,6 +2,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
+#include <initializer_list>
 
 using namespace sf;
 
@@ -11,6 +12,27 @@ enum ComponentType
 	PHYSICS_BODY,
 	RENDERER,
 	PLAYER_CONTROLLER
+};
+
+class ComponentsMask
+{
+private:
+	long mask;
+
+public:
+	ComponentsMask();
+	ComponentsMask(std::initializer_list<ComponentType> list);
+
+	void AddComponent(ComponentType comp);
+	void AddComponent(std::initializer_list<ComponentType> list);
+
+	void RemoveComponent(ComponentType comp);
+	void RemoveComponent(std::initializer_list<ComponentType> list);
+
+	long GetMask();
+
+	bool operator==(ComponentsMask const& other) const;
+	bool operator!=(ComponentsMask const& other) const;
 };
 
 struct EntityTransform

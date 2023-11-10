@@ -20,35 +20,10 @@ struct Components
 
 struct Entity
 {
-    long componentMask;
-
-    void AddComponent(ComponentType comp)
-    {
-        componentMask |= 1 << comp;
-    }
-
-    /*void AddComponent(ComponentType comp...)
-    {
-        va_list args;
-        va_start(args, comp);
-
-        while (args)
-        {
-
-        }
-
-        va_end(args);
-    }*/
-
-    void RemoveComponent(ComponentType comp)
-    {
-        long mask = 1 << comp;
-        mask = ~mask;
-        componentMask &= mask;
-    }
+    ComponentsMask componentsMask;
 };
 
-
+Entity entitiesList[MAX_ENTITIES];
 
 int main()
 {
