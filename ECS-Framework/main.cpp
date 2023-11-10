@@ -1,14 +1,54 @@
 #include <SFML/Graphics.hpp>
 #include "Components.h"
+#include <cstdarg>
+#include <iostream>
 
 using namespace sf;
 
 #define MAX_ENTITIES 30
 
+// systems will operate on this struct of all components in the game
 struct Components
 {
+    // Every entity has an entry in every list. Their component is
+    // accessed by indexing using their entity id;
     EntityTransform transforms[MAX_ENTITIES];
+    PhysicsBody physicsBodies[MAX_ENTITIES];
+    Renderer renderers[MAX_ENTITIES];
+    PlayerController playerControllers[MAX_ENTITIES];
+} components;
+
+struct Entity
+{
+    long componentMask;
+
+    void AddComponent(ComponentType comp)
+    {
+        componentMask |= 1 << comp;
+    }
+
+    /*void AddComponent(ComponentType comp...)
+    {
+        va_list args;
+        va_start(args, comp);
+
+        while (args)
+        {
+
+        }
+
+        va_end(args);
+    }*/
+
+    void RemoveComponent(ComponentType comp)
+    {
+        long mask = 1 << comp;
+        mask = ~mask;
+        componentMask &= mask;
+    }
 };
+
+
 
 int main()
 {

@@ -5,6 +5,14 @@
 
 using namespace sf;
 
+enum ComponentType
+{
+	ENTITY_TRANSFORM,
+	PHYSICS_BODY,
+	RENDERER,
+	PLAYER_CONTROLLER
+};
+
 struct EntityTransform
 {
 	Vector2f position;
