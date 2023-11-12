@@ -24,6 +24,12 @@ struct Components
 struct Entity
 {
 	ComponentsMask componentsMask;
+
+	Entity() = default;
+	Entity(ComponentsMask mask)
+	{
+		componentsMask = mask;
+	}
 };
 
 class ECS
@@ -32,6 +38,9 @@ private:
 	int numEntities;
 	Entity entitiesList[MAX_ENTITIES];
 	Components components;
+
+	// use this get IDs of all entities which are match the system mask
+	void GetEntitiesForSystem(ComponentsMask systemMask, int* buffer, int bufferSize);
 
 	void PhysicsUpdate(double delta);
 	void RenderingUpdate(double delta, RenderWindow& window);
@@ -56,6 +65,10 @@ public:
 		Renderer renderer,
 		PlayerController playerController
 	);
+
+	int AddEntity(ComponentsMask mask);
+
+	Components* GetComponents();
 
 	void GameLoop();
 };

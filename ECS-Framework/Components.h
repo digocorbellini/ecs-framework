@@ -21,6 +21,7 @@ private:
 
 public:
 	ComponentsMask();
+	ComponentsMask(long mask);
 	ComponentsMask(std::initializer_list<ComponentType> list);
 
 	void AddComponent(ComponentType comp);
@@ -33,6 +34,12 @@ public:
 
 	bool operator==(ComponentsMask const& other) const;
 	bool operator!=(ComponentsMask const& other) const;
+	ComponentsMask operator&(const ComponentsMask& other);
+
+	explicit operator bool() const
+	{
+		return mask > 0;
+	}
 };
 
 struct EntityTransform
@@ -51,11 +58,32 @@ struct PhysicsBody
 struct Renderer
 {
 	Sprite sprite;
+	Texture texture;
+	int renderingOrder;
 
-	bool isAnimated;
-	float frameRate;
+	/*bool isAnimated;
+	float frameRate;*/
 
 	bool isFlipped;
+
+	Renderer()
+	{
+		sprite = Sprite();
+		texture = Texture();
+		renderingOrder = 0;
+		isFlipped = false;
+	}
+
+	struct PointerCompare {
+		bool operator()(const Renderer* l, const Renderer* r) {
+			return *l < *r;
+		}
+	};
+
+	bool operator<(const Renderer& other) const
+	{
+		return renderingOrder < other.renderingOrder;
+	}
 };
 
 struct PlayerController
