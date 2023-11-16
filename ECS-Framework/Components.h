@@ -49,7 +49,7 @@ struct EntityTransform
 
 struct PhysicsBody
 {
-	float velocity;
+	Vector2f velocity;
 	bool hasGravity;
 	float forceOfGravity;
 	RectangleShape bounds;

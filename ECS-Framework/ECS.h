@@ -44,7 +44,7 @@ private:
 
 	void PhysicsUpdate(double delta);
 	void RenderingUpdate(double delta, RenderWindow& window);
-	void MovementUpdate(double delta);
+	void MovementUpdate(double delta, Event event);
 public:
 	ECS();
 	ECS

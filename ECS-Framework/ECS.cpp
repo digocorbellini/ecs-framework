@@ -135,9 +135,33 @@ void ECS::RenderingUpdate(double delta, RenderWindow& window)
 
 }
 
-void ECS::MovementUpdate(double delta)
+void ECS::MovementUpdate(double delta, Event event)
 {
+	for (int i = 0; i < numEntities; ++i)
+	{
+		Entity currEntity = entitiesList[i];
+		if (currEntity.componentsMask & CONTROLLER_MASK != CONTROLLER_MASK)
+		{
+			continue;
+		}
 
+		EntityTransform* currTransform = &components.transforms[i];
+		PhysicsBody* currPhysics = &components.physicsBodies[i];
+
+		// player movement 
+		if (Keyboard::isKeyPressed(Keyboard::A))
+		{
+			// go left
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::D))
+		{
+
+		}
+		else
+		{
+			currPhysics->velocity.x = 0;
+		}
+	}
 }
 
 void ECS::GameLoop()
@@ -156,7 +180,7 @@ void ECS::GameLoop()
 		std::chrono::duration<double> elapsedTime =
 			std::chrono::duration_cast<std::chrono::duration<double>>(time - lastTime);
 		double deltaTime = elapsedTime.count();
-		MovementUpdate(deltaTime);
+		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
 		RenderingUpdate(deltaTime, window);
 		lastTime = time;
