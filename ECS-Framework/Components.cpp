@@ -5,6 +5,11 @@ ComponentsMask::ComponentsMask()
 	mask = 0;
 }
 
+ComponentsMask::ComponentsMask(const ComponentsMask& other)
+{
+	mask = other.mask;
+}
+
 ComponentsMask::ComponentsMask(long mask)
 {
 	this->mask = mask;
@@ -12,6 +17,7 @@ ComponentsMask::ComponentsMask(long mask)
 
 ComponentsMask::ComponentsMask(std::initializer_list<ComponentType> list)
 {
+	mask = 0;
 	AddComponent(list);
 }
 

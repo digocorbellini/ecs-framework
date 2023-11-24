@@ -77,7 +77,7 @@ void ECS::GetEntitiesForSystem(ComponentsMask systemMask, int* buffer, int buffe
 	for (int i = 0; i < numEntities && count < bufferSize; ++i)
 	{
 		Entity currEntity = entitiesList[i];
-		if (currEntity.componentsMask & systemMask == systemMask)
+		if ((currEntity.componentsMask & systemMask) == systemMask)
 		{
 			buffer[count] = i;
 			count++;
@@ -140,27 +140,41 @@ void ECS::MovementUpdate(double delta, Event event)
 	for (int i = 0; i < numEntities; ++i)
 	{
 		Entity currEntity = entitiesList[i];
-		if (currEntity.componentsMask & CONTROLLER_MASK != CONTROLLER_MASK)
+		if ((currEntity.componentsMask & CONTROLLER_MASK) != CONTROLLER_MASK)
 		{
 			continue;
 		}
 
 		EntityTransform* currTransform = &components.transforms[i];
 		PhysicsBody* currPhysics = &components.physicsBodies[i];
+		PlayerController* currController = &components.playerControllers[i];
 
 		// player movement 
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
 			// go left
+			currPhysics->velocity.x = -currController->moveSpeed;
+			components.renderers[i].isFlipped = true;
+
+
+			// TODO: remove this. temporarily modify position instead of velocity
+			currTransform->position.x += -currController->moveSpeed * delta;
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::D))
 		{
+			// go right
+			currPhysics->velocity.x = currController->moveSpeed;
+			components.renderers[i].isFlipped = false;
 
+			// TODO: remove this. temporarily modify position instead of velocity
+			currTransform->position.x += currController->moveSpeed * delta;
 		}
 		else
 		{
 			currPhysics->velocity.x = 0;
 		}
+
+		// TODO: need some way to know if we are grounded or not
 	}
 }
 

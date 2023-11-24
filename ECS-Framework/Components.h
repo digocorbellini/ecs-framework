@@ -21,6 +21,7 @@ private:
 
 public:
 	ComponentsMask();
+	ComponentsMask(const ComponentsMask& other);
 	ComponentsMask(long mask);
 	ComponentsMask(std::initializer_list<ComponentType> list);
 

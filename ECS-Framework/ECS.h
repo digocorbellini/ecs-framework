@@ -8,7 +8,7 @@ using namespace sf;
 
 const ComponentsMask PHYSICS_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PHYSICS_BODY });
 const ComponentsMask RENDERER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER });
-const ComponentsMask CONTROLLER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PLAYER_CONTROLLER });
+const ComponentsMask CONTROLLER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PLAYER_CONTROLLER, ComponentType::PHYSICS_BODY });
 
 // Systems will operate on this struct of all components in the game
 struct Components
