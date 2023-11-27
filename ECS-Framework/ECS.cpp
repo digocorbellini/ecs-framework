@@ -73,7 +73,22 @@ Components* ECS::GetComponents()
 
 void ECS::PhysicsUpdate(double delta)
 {
+	for (int i = 0; i < numEntities; i++)
+	{
+		Entity currEntity = entitiesList[i];
+		if ((currEntity.componentsMask & PHYSICS_MASK) != PHYSICS_MASK)
+		{
+			continue;
+		}
 
+		EntityTransform* currTransform = &components.transforms[i];
+		PhysicsBody* currPhysics = &components.physicsBodies[i];
+		currTransform->position = currTransform->position + ((float) delta * currPhysics->velocity);
+		if (currPhysics->hasGravity)
+		{
+			currPhysics->velocity = currPhysics->velocity + ((float) delta * currPhysics->gravityAccel);
+		}
+	}
 }
 
 void ECS::RenderingUpdate(double delta, RenderWindow& window)
@@ -134,19 +149,12 @@ void ECS::MovementUpdate(double delta, Event event)
 			// go left
 			currPhysics->velocity.x = -currController->moveSpeed;
 			components.renderers[i].isFlipped = true;
-
-
-			// TODO: remove this. temporarily modify position instead of velocity
-			currTransform->position.x += -currController->moveSpeed * delta;
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::D))
 		{
 			// go right
 			currPhysics->velocity.x = currController->moveSpeed;
 			components.renderers[i].isFlipped = false;
-
-			// TODO: remove this. temporarily modify position instead of velocity
-			currTransform->position.x += currController->moveSpeed * delta;
 		}
 		else
 		{

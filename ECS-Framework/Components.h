@@ -52,7 +52,7 @@ struct PhysicsBody
 {
 	Vector2f velocity;
 	bool hasGravity;
-	float forceOfGravity;
+	Vector2f gravityAccel;
 	RectangleShape bounds;
 };
 
