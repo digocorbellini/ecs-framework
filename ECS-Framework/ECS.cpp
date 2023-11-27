@@ -71,25 +71,6 @@ Components* ECS::GetComponents()
 	return &components;
 }
 
-void ECS::GetEntitiesForSystem(ComponentsMask systemMask, int* buffer, int bufferSize)
-{
-	int count = 0;
-	for (int i = 0; i < numEntities && count < bufferSize; ++i)
-	{
-		Entity currEntity = entitiesList[i];
-		if ((currEntity.componentsMask & systemMask) == systemMask)
-		{
-			buffer[count] = i;
-			count++;
-		}
-	}
-
-	if (count < bufferSize - 1)
-	{
-		buffer[count] = -1;
-	}
-}
-
 void ECS::PhysicsUpdate(double delta)
 {
 
@@ -97,23 +78,21 @@ void ECS::PhysicsUpdate(double delta)
 
 void ECS::RenderingUpdate(double delta, RenderWindow& window)
 {
-	// get all entities that should be rendered
-	int entitiesBuffer[MAX_ENTITIES];
-	GetEntitiesForSystem(RENDERER_MASK, entitiesBuffer, numEntities);
-
 	// sort all rendering components in order of order in layer
 	std::vector<Renderer*> compList;
 	for (int i = 0; i < MAX_ENTITIES; i++)
 	{
-		int currID = entitiesBuffer[i];
-		if (currID < 0)
-			break;
+		Entity currEntity = entitiesList[i];
+		if ((currEntity.componentsMask & RENDERER_MASK) != RENDERER_MASK)
+		{
+			continue;
+		}
 
-		Renderer* currRend = &components.renderers[currID];
+		Renderer* currRend = &components.renderers[i];
 
 		// perform changes on sprite depending on component values
 		currRend->sprite.setOrigin(currRend->texture.getSize().x / 2, currRend->texture.getSize().y / 2);
-		currRend->sprite.setPosition(components.transforms[currID].position);
+		currRend->sprite.setPosition(components.transforms[i].position);
 		float xDir = (currRend->isFlipped) ? -1.0f : 1.0f;
 		Vector2f newScale = currRend->sprite.getScale();
 		newScale.x = abs(newScale.x) * xDir;
