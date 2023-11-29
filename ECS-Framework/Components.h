@@ -51,9 +51,11 @@ struct EntityTransform
 struct PhysicsBody
 {
 	Vector2f velocity;
-	bool hasGravity;
+	Vector2f oldVelocity;
 	Vector2f gravityAccel;
-	RectangleShape bounds;
+	Rect<float> bounds;
+	bool hasGravity;
+	bool isStatic;
 };
 
 struct Renderer

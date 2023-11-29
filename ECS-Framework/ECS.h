@@ -39,12 +39,9 @@ private:
 	Entity entitiesList[MAX_ENTITIES];
 	Components components;
 
-	// use this get IDs of all entities which are match the system mask
-	void GetEntitiesForSystem(ComponentsMask systemMask, int* buffer, int bufferSize);
-
-	void PhysicsUpdate(double delta);
-	void RenderingUpdate(double delta, RenderWindow& window);
-	void MovementUpdate(double delta, Event event);
+	void PhysicsUpdate(float delta);
+	void RenderingUpdate(float delta, RenderWindow& window);
+	void MovementUpdate(float delta, Event event);
 public:
 	ECS();
 	ECS

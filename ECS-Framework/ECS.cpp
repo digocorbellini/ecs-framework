@@ -20,7 +20,8 @@ ECS::ECS
 )
 {
 	numEntities = std::min(MAX_ENTITIES, size);
-	for (int i = 0; i < numEntities; i++) {
+	for (int i = 0; i < numEntities; i++)
+	{
 		entitiesList[i] = entities[i];
 		components.transforms[i] = transforms[i];
 		components.physicsBodies[i] = physicsBodies[i];
@@ -38,7 +39,8 @@ bool ECS::AddEntity
 	PlayerController playerController
 )
 {
-	if (numEntities == MAX_ENTITIES) {
+	if (numEntities == MAX_ENTITIES)
+	{
 		return false;
 	}
 
@@ -53,7 +55,8 @@ bool ECS::AddEntity
 
 int ECS::AddEntity(ComponentsMask mask)
 {
-	if (numEntities == MAX_ENTITIES) {
+	if (numEntities == MAX_ENTITIES)
+	{
 		return false;
 	}
 
@@ -71,7 +74,7 @@ Components* ECS::GetComponents()
 	return &components;
 }
 
-void ECS::PhysicsUpdate(double delta)
+void ECS::PhysicsUpdate(float delta)
 {
 	for (int i = 0; i < numEntities; i++)
 	{
@@ -80,18 +83,109 @@ void ECS::PhysicsUpdate(double delta)
 		{
 			continue;
 		}
-
 		EntityTransform* currTransform = &components.transforms[i];
 		PhysicsBody* currPhysics = &components.physicsBodies[i];
-		currTransform->position = currTransform->position + ((float) delta * currPhysics->velocity);
-		if (currPhysics->hasGravity)
+		if (!currPhysics->isStatic)
 		{
-			currPhysics->velocity = currPhysics->velocity + ((float) delta * currPhysics->gravityAccel);
+			// use velocity verlet to update position and velocity
+			currTransform->position += currPhysics->velocity * delta;
+			currPhysics->oldVelocity = currPhysics->velocity;
+			if (currPhysics->hasGravity)
+			{
+				currPhysics->velocity += currPhysics->gravityAccel * delta;
+			}
+		}
+		currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
+		currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
+	}
+	// detect and resolve collisions
+	for (int i = 0; i < numEntities; i++)
+	{
+		Entity currEntity = entitiesList[i];
+		if (((currEntity.componentsMask & PHYSICS_MASK) != PHYSICS_MASK))
+		{
+			continue;
+		}
+		EntityTransform* currTransform = &components.transforms[i];
+		PhysicsBody* currPhysics = &components.physicsBodies[i];
+		if (!currPhysics->isStatic) // only resolve dynamic objects
+		{
+			int firstIntersectIndex = -1;
+			float firstIntersectTime = FLT_MAX;
+			for (int j = 0; j < numEntities; j++)
+			{
+				Entity pairEntity = entitiesList[j];
+				if (((pairEntity.componentsMask & PHYSICS_MASK) != PHYSICS_MASK) || j == i)
+				{
+					continue;
+				}
+				EntityTransform* pairTransform = &components.transforms[j];
+				PhysicsBody* pairPhysics = &components.physicsBodies[j];
+				if (pairPhysics->isStatic) // only dynamic -> static body collisions are handled
+				{
+					// swept collision detection
+					// calculate time of intersection (TOI) on each axis separately
+					// TOI is calculated by getting penetration time (penetration distance divided by velocity) and subtracting that from delta
+					float xTOI;
+					if (currPhysics->velocity.x > 0.0f)
+					{
+						xTOI = delta - (((currPhysics->bounds.left + currPhysics->bounds.width) - pairPhysics->bounds.left) / currPhysics->oldVelocity.x);
+					}
+					else if (currPhysics->velocity.x < 0.0f)
+					{
+						xTOI = delta - (((pairPhysics->bounds.left + pairPhysics->bounds.width) - currPhysics->bounds.left) / -currPhysics->oldVelocity.x);
+					}
+					else
+					{
+						if ((currPhysics->bounds.left + currPhysics->bounds.width) > pairPhysics->bounds.left || currPhysics->bounds.left < (pairPhysics->bounds.left + pairPhysics->bounds.width))
+						{
+							xTOI = 0.0f;
+						}
+						else
+						{
+							xTOI = FLT_MAX;
+						}
+					}
+					float yTOI;
+					if (currPhysics->velocity.y > 0.0f)
+					{
+						yTOI = delta - (((currPhysics->bounds.top + currPhysics->bounds.height) - pairPhysics->bounds.top) / currPhysics->oldVelocity.y);
+					}
+					else if (currPhysics->velocity.y < 0.0f)
+					{
+						yTOI = delta - (((pairPhysics->bounds.top + pairPhysics->bounds.height) - currPhysics->bounds.top) / -currPhysics->oldVelocity.y);
+					}
+					else
+					{
+						if ((currPhysics->bounds.top + currPhysics->bounds.height) > pairPhysics->bounds.top || currPhysics->bounds.top < (pairPhysics->bounds.top + pairPhysics->bounds.height))
+						{
+							yTOI = 0.0f;
+						}
+						else
+						{
+							yTOI = FLT_MAX;
+						}
+					}
+					std::cout << xTOI << " " << yTOI << "\n";
+					if (xTOI < 0.0f || yTOI < 0.0f || xTOI > delta || yTOI > delta) // implies intersection didn't occur
+					{
+						continue;
+					}
+					float TOI = std::max(xTOI, yTOI); // for a collision to occur, both axes must collide, so we take the later axis TOI
+					std::cout << TOI << " WOOOO " << delta << " " << currPhysics->velocity.y << "\n";
+					// placeholder just moves to TOI, no slide, also doesn't handle multiple collisions in one frame
+					currTransform->position -= currPhysics->oldVelocity * ((1.01f * delta) - TOI);
+					currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
+					currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
+					std::cout << "wa";
+					// calculate normals to slide
+				}
+			}
 		}
 	}
 }
 
-void ECS::RenderingUpdate(double delta, RenderWindow& window)
+void ECS::RenderingUpdate(float delta, RenderWindow& window)
 {
 	// sort all rendering components in order of order in layer
 	std::vector<Renderer*> compList;
@@ -129,7 +223,7 @@ void ECS::RenderingUpdate(double delta, RenderWindow& window)
 
 }
 
-void ECS::MovementUpdate(double delta, Event event)
+void ECS::MovementUpdate(float delta, Event event)
 {
 	for (int i = 0; i < numEntities; ++i)
 	{
@@ -160,6 +254,11 @@ void ECS::MovementUpdate(double delta, Event event)
 		{
 			currPhysics->velocity.x = 0;
 		}
+		if (Keyboard::isKeyPressed(Keyboard::Space))
+		{
+			// jump
+			currPhysics->velocity.y = -currController->jumpSpeed;
+		}
 
 		// TODO: need some way to know if we are grounded or not
 	}
@@ -179,8 +278,8 @@ void ECS::GameLoop()
 		}
 		auto time = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> elapsedTime =
-			std::chrono::duration_cast<std::chrono::duration<double>>(time - lastTime);
-		double deltaTime = elapsedTime.count();
+			std::chrono::duration_cast<std::chrono::duration<float>>(time - lastTime);
+		float deltaTime = elapsedTime.count();
 		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
 		RenderingUpdate(deltaTime, window);
