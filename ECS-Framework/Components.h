@@ -52,6 +52,7 @@ struct PhysicsBody
 {
 	Vector2f velocity;
 	Vector2f oldVelocity;
+	Vector2f oldPosition;
 	Vector2f gravityAccel;
 	Rect<float> bounds;
 	bool hasGravity;

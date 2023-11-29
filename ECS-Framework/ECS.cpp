@@ -88,6 +88,7 @@ void ECS::PhysicsUpdate(float delta)
 		if (!currPhysics->isStatic)
 		{
 			// use velocity verlet to update position and velocity
+			currPhysics->oldPosition = currTransform->position;
 			currTransform->position += currPhysics->velocity * delta;
 			currPhysics->oldVelocity = currPhysics->velocity;
 			if (currPhysics->hasGravity)
@@ -119,66 +120,83 @@ void ECS::PhysicsUpdate(float delta)
 				{
 					continue;
 				}
-				EntityTransform* pairTransform = &components.transforms[j];
 				PhysicsBody* pairPhysics = &components.physicsBodies[j];
 				if (pairPhysics->isStatic) // only dynamic -> static body collisions are handled
 				{
 					// swept collision detection
-					// calculate time of intersection (TOI) on each axis separately
+					// calculate time of intersection (TOI) and time of exit (TOE) on each axis separately
 					// TOI is calculated by getting penetration time (penetration distance divided by velocity) and subtracting that from delta
 					float xTOI;
-					if (currPhysics->velocity.x > 0.0f)
+					float xTOE;
+					if (currPhysics->oldVelocity.x > 0.0f)
 					{
-						xTOI = delta - (((currPhysics->bounds.left + currPhysics->bounds.width) - pairPhysics->bounds.left) / currPhysics->oldVelocity.x);
+ 						xTOI = delta - (((currPhysics->bounds.left + currPhysics->bounds.width) - pairPhysics->bounds.left) / currPhysics->oldVelocity.x);
+						xTOE = delta - ((currPhysics->bounds.left - (pairPhysics->bounds.left + pairPhysics->bounds.width)) / currPhysics->oldVelocity.x);
 					}
-					else if (currPhysics->velocity.x < 0.0f)
+					else if (currPhysics->oldVelocity.x < 0.0f)
 					{
 						xTOI = delta - (((pairPhysics->bounds.left + pairPhysics->bounds.width) - currPhysics->bounds.left) / -currPhysics->oldVelocity.x);
+						xTOE = delta - ((pairPhysics->bounds.left - (currPhysics->bounds.left + currPhysics->bounds.width)) / -currPhysics->oldVelocity.x);
 					}
 					else
 					{
-						if ((currPhysics->bounds.left + currPhysics->bounds.width) > pairPhysics->bounds.left || currPhysics->bounds.left < (pairPhysics->bounds.left + pairPhysics->bounds.width))
+						if ((currPhysics->bounds.left + currPhysics->bounds.width) > pairPhysics->bounds.left && currPhysics->bounds.left < (pairPhysics->bounds.left + pairPhysics->bounds.width)) // already overlapping
 						{
 							xTOI = 0.0f;
+							xTOE = FLT_MAX;
 						}
 						else
 						{
 							xTOI = FLT_MAX;
+							xTOE = 0.0f;
 						}
 					}
 					float yTOI;
-					if (currPhysics->velocity.y > 0.0f)
+					float yTOE;
+					if (currPhysics->oldVelocity.y > 0.0f)
 					{
 						yTOI = delta - (((currPhysics->bounds.top + currPhysics->bounds.height) - pairPhysics->bounds.top) / currPhysics->oldVelocity.y);
+						yTOE = delta - ((currPhysics->bounds.top - (pairPhysics->bounds.top + pairPhysics->bounds.height)) / currPhysics->oldVelocity.y);
 					}
-					else if (currPhysics->velocity.y < 0.0f)
+					else if (currPhysics->oldVelocity.y < 0.0f)
 					{
 						yTOI = delta - (((pairPhysics->bounds.top + pairPhysics->bounds.height) - currPhysics->bounds.top) / -currPhysics->oldVelocity.y);
+						yTOE = delta - ((pairPhysics->bounds.top - (currPhysics->bounds.top + currPhysics->bounds.height)) / -currPhysics->oldVelocity.y);
 					}
 					else
 					{
-						if ((currPhysics->bounds.top + currPhysics->bounds.height) > pairPhysics->bounds.top || currPhysics->bounds.top < (pairPhysics->bounds.top + pairPhysics->bounds.height))
+						if ((currPhysics->bounds.top + currPhysics->bounds.height) > pairPhysics->bounds.top && currPhysics->bounds.top < (pairPhysics->bounds.top + pairPhysics->bounds.height))
 						{
 							yTOI = 0.0f;
+							yTOE = FLT_MAX;
 						}
 						else
 						{
 							yTOI = FLT_MAX;
+							yTOE = 0.0f;
 						}
 					}
-					std::cout << xTOI << " " << yTOI << "\n";
-					if (xTOI < 0.0f || yTOI < 0.0f || xTOI > delta || yTOI > delta) // implies intersection didn't occur
+					//std::cout << "TOI " << xTOI << " " << yTOI << "\n";
+					//std::cout << "TOE " << xTOE << " " << yTOE << "\n";
+					float TOI = std::max(xTOI, yTOI); // for a collision to occur, both axes must collide, so we take the later axis TOI
+					float TOE = std::min(xTOE, yTOE); // inverse argument of TOI
+					if (TOI > delta || TOE <= 0.0f || TOI > TOE) // implies intersection didn't occur
 					{
 						continue;
 					}
-					float TOI = std::max(xTOI, yTOI); // for a collision to occur, both axes must collide, so we take the later axis TOI
-					std::cout << TOI << " WOOOO " << delta << " " << currPhysics->velocity.y << "\n";
-					// placeholder just moves to TOI, no slide, also doesn't handle multiple collisions in one frame
-					currTransform->position -= currPhysics->oldVelocity * ((1.01f * delta) - TOI);
-					currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
-					currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
-					std::cout << "wa";
-					// calculate normals to slide
+					if (TOE > delta)
+					{
+						//std::cout << TOI << " WOOOO " << delta << " " << currPhysics->oldVelocity.y << "\n";
+						// placeholder just moves to TOI, no slide, also doesn't handle multiple collisions in one frame
+						currTransform->position -= currPhysics->oldVelocity * ((1.01f * delta) - TOI);
+						currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
+						currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
+						// calculate normals to slide
+					}
+					else
+					{
+						std::cout << "waa";
+					}
 				}
 			}
 		}

@@ -19,7 +19,7 @@ int main()
     components->renderers[newEntityID].sprite = Sprite(components->renderers[newEntityID].texture);
     components->renderers[newEntityID].sprite.setScale(Vector2f(0.1f, 0.1f));
     components->renderers[newEntityID].isFlipped = true;
-    components->playerControllers[newEntityID].moveSpeed = 100;
+    components->playerControllers[newEntityID].moveSpeed = 500;
     components->playerControllers[newEntityID].jumpSpeed = 100;
     Vector2f pos = Vector2f(1000, 300);
     components->transforms[newEntityID].position = pos;
@@ -36,7 +36,7 @@ int main()
     components->renderers[newEntityID].sprite.setScale(Vector2f(2.0f, 0.2f));
     components->renderers[newEntityID].isFlipped = false;
     components->renderers[newEntityID].renderingOrder = 1;
-    pos = Vector2f(750, 500);
+    pos = Vector2f(900, 500);
     components->transforms[newEntityID].position = pos;
     components->physicsBodies[newEntityID].velocity = Vector2f(0, 0);
     components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
