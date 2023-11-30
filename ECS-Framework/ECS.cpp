@@ -304,8 +304,31 @@ void ECS::MovementUpdate(float delta, Event event)
 			// jump
 			currPhysics->velocity.y = -currController->jumpSpeed;
 		}
+	}
+}
 
-		// TODO: need some way to know if we are grounded or not
+void ECS::CameraUpdate(float delta, RenderWindow& window)
+{
+	for (int i = 0; i < numEntities; ++i)
+	{
+		Entity currEntity = entitiesList[i];
+		if ((currEntity.componentsMask & CAMERA_MASK) != CAMERA_MASK)
+		{
+			continue;
+		}
+
+		Camera* currCamera = &components.cameras[i];
+		EntityTransform* currTransform = &components.transforms[i];
+		if (currCamera->targetTransform != NULL)
+		{
+			currTransform->position = currCamera->targetTransform->position;
+		}
+
+		currCamera->cameraView.setCenter(currTransform->position + currCamera->viewOffsetFromPos);
+		if (currCamera->isMainCam)
+		{
+			window.setView(currCamera->cameraView);
+		}
 	}
 }
 
@@ -327,6 +350,7 @@ void ECS::GameLoop()
 		float deltaTime = elapsedTime.count();
 		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
+		CameraUpdate(deltaTime, window);
 		RenderingUpdate(deltaTime, window);
 		lastTime = time;
 	}

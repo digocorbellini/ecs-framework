@@ -9,6 +9,7 @@ using namespace sf;
 const ComponentsMask PHYSICS_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PHYSICS_BODY });
 const ComponentsMask RENDERER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER });
 const ComponentsMask CONTROLLER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PLAYER_CONTROLLER, ComponentType::PHYSICS_BODY, ComponentType::RENDERER });
+const ComponentsMask CAMERA_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::CAMERA });
 
 // Systems will operate on this struct of all components in the game
 struct Components
@@ -19,6 +20,7 @@ struct Components
 	PhysicsBody physicsBodies[MAX_ENTITIES];
 	Renderer renderers[MAX_ENTITIES];
 	PlayerController playerControllers[MAX_ENTITIES];
+	Camera cameras[MAX_ENTITIES];
 };
 
 struct Entity
@@ -42,6 +44,7 @@ private:
 	void PhysicsUpdate(float delta);
 	void RenderingUpdate(float delta, RenderWindow& window);
 	void MovementUpdate(float delta, Event event);
+	void CameraUpdate(float delta, RenderWindow& window);
 public:
 	ECS();
 	ECS

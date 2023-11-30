@@ -11,7 +11,8 @@ enum ComponentType
 	ENTITY_TRANSFORM,
 	PHYSICS_BODY,
 	RENDERER,
-	PLAYER_CONTROLLER
+	PLAYER_CONTROLLER,
+	CAMERA,
 };
 
 class ComponentsMask
@@ -95,4 +96,12 @@ struct PlayerController
 {
 	float moveSpeed;
 	float jumpSpeed;
+};
+
+struct Camera
+{
+	EntityTransform* targetTransform; // if null, will not try to follow a target and will instead be controlled by its transform
+	Vector2f viewOffsetFromPos; // used to center the camera
+	View cameraView;
+	bool isMainCam; // true = this camera view will be displayed on the window
 };
