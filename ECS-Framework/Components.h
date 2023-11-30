@@ -57,6 +57,7 @@ struct PhysicsBody
 	Rect<float> bounds;
 	bool hasGravity;
 	bool isStatic;
+	bool isOnGround;
 };
 
 struct Renderer

@@ -96,6 +96,7 @@ void ECS::PhysicsUpdate(float delta)
 				currPhysics->velocity += currPhysics->gravityAccel * delta;
 			}
 		}
+		currPhysics->isOnGround = false;
 		currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
 		currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
 	}
@@ -184,19 +185,45 @@ void ECS::PhysicsUpdate(float delta)
 					{
 						continue;
 					}
-					if (TOE > delta)
+					if (TOE <= delta) // if object can exit in one frame, just let it
 					{
-						//std::cout << TOI << " WOOOO " << delta << " " << currPhysics->oldVelocity.y << "\n";
-						// placeholder just moves to TOI, no slide, also doesn't handle multiple collisions in one frame
-						currTransform->position -= currPhysics->oldVelocity * ((1.01f * delta) - TOI);
-						currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
-						currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
-						// calculate normals to slide
+						continue;
+					}
+					//std::cout << TOI << " WOOOO " << delta << " " << currPhysics->oldVelocity.y << "\n";
+					// TODO: only process first intersection, reprocess intersections after deflection
+
+					// calculate normals to slide
+					Vector2f collisionNormal;
+					if (xTOI > yTOI) // collision happens on x axis
+					{
+						if (currPhysics->oldVelocity.x > 0.0f)
+						{
+							collisionNormal = Vector2f(-1, 0);
+						}
+						else
+						{
+							collisionNormal = Vector2f(1, 0);
+						}
 					}
 					else
 					{
-						std::cout << "waa";
+						if (currPhysics->oldVelocity.y > 0.0f)
+						{
+							collisionNormal = Vector2f(0, -1);
+							currPhysics->isOnGround = true;
+						}
+						else
+						{
+							collisionNormal = Vector2f(0, 1);
+						}
 					}
+					// move object to TOI with slight offset away from surface for float precision
+					currTransform->position -= currPhysics->oldVelocity * (delta - TOI);
+					currTransform->position += 0.01f * collisionNormal;
+					// cancel out velocity going into the collision surface with vector projection
+					currPhysics->velocity -= (currPhysics->velocity.x * collisionNormal.x + currPhysics->velocity.y * collisionNormal.y) * collisionNormal;
+					currPhysics->bounds.left = currTransform->position.x - (currPhysics->bounds.width / 2.0f);
+					currPhysics->bounds.top = currTransform->position.y - (currPhysics->bounds.height / 2.0f);
 				}
 			}
 		}
@@ -272,7 +299,7 @@ void ECS::MovementUpdate(float delta, Event event)
 		{
 			currPhysics->velocity.x = 0;
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Space))
+		if (Keyboard::isKeyPressed(Keyboard::Space) && currPhysics->isOnGround)
 		{
 			// jump
 			currPhysics->velocity.y = -currController->jumpSpeed;

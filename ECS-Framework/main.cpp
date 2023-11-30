@@ -28,6 +28,7 @@ int main()
     components->physicsBodies[newEntityID].bounds = Rect<float>(pos, Vector2f(75, 100));
     components->physicsBodies[newEntityID].hasGravity = true;
     components->physicsBodies[newEntityID].isStatic = false;
+    components->physicsBodies[newEntityID].isOnGround = false;
 
     newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
     components->renderers[newEntityID].texture = Texture();
@@ -43,6 +44,7 @@ int main()
     components->physicsBodies[newEntityID].bounds = Rect<float>(pos, Vector2f(1500, 200));
     components->physicsBodies[newEntityID].hasGravity = false;
     components->physicsBodies[newEntityID].isStatic = true;
+    components->physicsBodies[newEntityID].isOnGround = false;
 
     ecs.GameLoop();   
 
