@@ -177,8 +177,6 @@ void ECS::PhysicsUpdate(float delta)
 							yTOE = 0.0f;
 						}
 					}
-					//std::cout << "TOI " << xTOI << " " << yTOI << "\n";
-					//std::cout << "TOE " << xTOE << " " << yTOE << "\n";
 					float TOI = std::max(xTOI, yTOI); // for a collision to occur, both axes must collide, so we take the later axis TOI
 					float TOE = std::min(xTOE, yTOE); // inverse argument of TOI
 					if (TOI > delta || TOE <= 0.0f || TOI > TOE) // implies intersection didn't occur
@@ -189,7 +187,6 @@ void ECS::PhysicsUpdate(float delta)
 					{
 						continue;
 					}
-					//std::cout << TOI << " WOOOO " << delta << " " << currPhysics->oldVelocity.y << "\n";
 					// TODO: only process first intersection, reprocess intersections after deflection
 
 					// calculate normals to slide
@@ -348,6 +345,7 @@ void ECS::GameLoop()
 		std::chrono::duration<double> elapsedTime =
 			std::chrono::duration_cast<std::chrono::duration<float>>(time - lastTime);
 		float deltaTime = elapsedTime.count();
+		std::cout << (1.0f / deltaTime) << "\n";
 		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
 		CameraUpdate(deltaTime, window);
