@@ -345,7 +345,6 @@ void ECS::GameLoop()
 		std::chrono::duration<double> elapsedTime =
 			std::chrono::duration_cast<std::chrono::duration<float>>(time - lastTime);
 		float deltaTime = elapsedTime.count();
-		std::cout << (1.0f / deltaTime) << "\n";
 		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
 		CameraUpdate(deltaTime, window);
