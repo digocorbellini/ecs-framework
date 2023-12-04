@@ -23,15 +23,15 @@ int Benchmark()
     Texture boxTexture = Texture();
     boxTexture.loadFromFile("./poggies.png");
     Sprite boxSprite = Sprite(boxTexture);
-    boxSprite.setScale(Vector2f(0.02f, 0.02f));
-    for (int i = 0; i < 5000; i++)
+    boxSprite.setScale(Vector2f(0.05f, 0.05f));
+    for (int i = 0; i < 500; i++)
     {
         newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
         components->renderers[newEntityID].texture = boxTexture;
         components->renderers[newEntityID].sprite = boxSprite;
         components->renderers[newEntityID].isFlipped = false;
         components->renderers[newEntityID].renderingOrder = 1;
-        pos = Vector2f(1000 - (15 * i), 300 - (20 * i));
+        pos = Vector2f(-800 + (50 * i), -100);
         components->transforms[newEntityID].position = pos;
         components->physicsBodies[newEntityID].velocity = Vector2f(500, 0);
         components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
@@ -39,6 +39,23 @@ int Benchmark()
         components->physicsBodies[newEntityID].hasGravity = true;
         components->physicsBodies[newEntityID].isStatic = false;
         components->physicsBodies[newEntityID].isOnGround = false;
+
+        for (int x = 1; x <= 10; x++)
+        {
+            newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
+            components->renderers[newEntityID].texture = boxTexture;
+            components->renderers[newEntityID].sprite = boxSprite;
+            components->renderers[newEntityID].isFlipped = false;
+            components->renderers[newEntityID].renderingOrder = 1;
+            Vector2f newBos = pos + Vector2f(-50 * x, 60 * x);
+            components->transforms[newEntityID].position = newBos;
+            components->physicsBodies[newEntityID].velocity = Vector2f(500, 0);
+            components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
+            components->physicsBodies[newEntityID].bounds = Rect<float>(pos, Vector2f(15, 20));
+            components->physicsBodies[newEntityID].hasGravity = true;
+            components->physicsBodies[newEntityID].isStatic = false;
+            components->physicsBodies[newEntityID].isOnGround = false;
+        }
     }
 
 
@@ -167,6 +184,10 @@ void TechDemo()
     doorwayTexture.loadFromFile("./Images/doorway_tile.png");
     Sprite doorwaySprite = Sprite(doorwayTexture);
     doorwaySprite.setScale(2, 2);
+
+    Texture boxTexture = Texture();
+    boxTexture.loadFromFile("./Images/box_tile.png");
+    Sprite boxSprite = Sprite(boxTexture);
 
     // create backgrounds
     for (int i = 0; i < 20; i++)
@@ -459,6 +480,7 @@ void TechDemo()
         }
     }
 
+    // create ending castle
     pos = lastAreaStart + Vector2f(64 * 0, -64);
     for (int i = 0; i < 7; i++)
     {
@@ -493,6 +515,20 @@ void TechDemo()
         }
     }
 
+    // use blocks to hide player to show off rendering layers
+    pos = lastAreaStart + Vector2f(64 * -7, -64);
+    for (int i = 0; i < 7; i++)
+    {
+        newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER }));
+        components->renderers[newEntityID].texture = boxTexture;
+        components->renderers[newEntityID].sprite = boxSprite;
+        components->renderers[newEntityID].isFlipped = false;
+        components->renderers[newEntityID].renderingOrder = 20;
+        pos += Vector2f(64, 0);
+        components->transforms[newEntityID].position = pos;
+    }
+
+
     // create player
     int playerEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::PLAYER_CONTROLLER, ComponentType::PHYSICS_BODY, ComponentType::RENDERER }));
     components->renderers[playerEntityID].texture = Texture();
@@ -518,7 +554,99 @@ void TechDemo()
     components->cameras[newEntityID].isMainCam = true;
     components->cameras[newEntityID].cameraView = View(FloatRect(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT));
     components->cameras[newEntityID].viewOffsetFromPos = Vector2f(0, -100);
-    //components->cameras[newEntityID].backgroundColor = Color(207, 239, 252, 255);
+
+    ecs.GameLoop();
+}
+
+void BoxDrop()
+{
+    Components* components = ecs.GetComponents();
+    int newEntityID;
+    Vector2f pos;
+
+    ecs.SetBackgroundColor(Color(207, 239, 252, 255));
+    ecs.SetDebugMode(true);
+
+    // load images
+    Texture grassTexture = Texture();
+    grassTexture.loadFromFile("./Images/grass_tile.png");
+    Sprite grassSprite = Sprite(grassTexture);
+
+    Texture dirtTexture = Texture();
+    dirtTexture.loadFromFile("./Images/dirt_tile.png");
+    Sprite dirtSprite = Sprite(dirtTexture);
+
+    Texture backgroundTexture = Texture();
+    backgroundTexture.loadFromFile("./Images/background.png");
+    Sprite backgroundSprite = Sprite(backgroundTexture);
+
+    Texture boxTexture = Texture();
+    boxTexture.loadFromFile("./Images/box_tile.png");
+    Sprite boxSprite = Sprite(boxTexture);
+
+    // create backgrounds
+    for (int i = 0; i < 20; i++)
+    {
+        newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER }));
+        components->renderers[newEntityID].texture = backgroundTexture;
+        components->renderers[newEntityID].sprite = backgroundSprite;
+        components->renderers[newEntityID].isFlipped = false;
+        components->renderers[newEntityID].renderingOrder = 0;
+        pos = Vector2f(-512 + (512 * 2 * i), 800 - (64 * 8));
+        components->transforms[newEntityID].position = pos;
+    }
+
+    // create initial flat space
+    for (int i = 0; i < 35; i++)
+    {
+        newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
+        components->renderers[newEntityID].texture = grassTexture;
+        components->renderers[newEntityID].sprite = grassSprite;
+        components->renderers[newEntityID].isFlipped = false;
+        components->renderers[newEntityID].renderingOrder = 1;
+        pos = Vector2f(0 + (64 * i), 800);
+        components->transforms[newEntityID].position = pos;
+        components->physicsBodies[newEntityID].velocity = Vector2f(500, 0);
+        components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
+        components->physicsBodies[newEntityID].bounds = Rect<float>(grassSprite.getGlobalBounds());
+        components->physicsBodies[newEntityID].hasGravity = true;
+        components->physicsBodies[newEntityID].isStatic = true;
+        components->physicsBodies[newEntityID].isOnGround = false;
+
+        // create dirt under the grass
+        for (int x = 1; x <= 10; x++)
+        {
+            newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
+            components->renderers[newEntityID].texture = dirtTexture;
+            components->renderers[newEntityID].sprite = dirtSprite;
+            components->renderers[newEntityID].isFlipped = false;
+            components->renderers[newEntityID].renderingOrder = 1;
+            Vector2f dirtPos = pos + Vector2f(0, 64 * x);
+            components->transforms[newEntityID].position = dirtPos;
+            components->physicsBodies[newEntityID].velocity = Vector2f(500, 0);
+            components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
+            components->physicsBodies[newEntityID].bounds = Rect<float>(dirtSprite.getGlobalBounds());
+            components->physicsBodies[newEntityID].hasGravity = true;
+            components->physicsBodies[newEntityID].isStatic = true;
+            components->physicsBodies[newEntityID].isOnGround = false;
+        }
+    }
+
+    // create box to fall
+    newEntityID = ecs.AddEntity(ComponentsMask({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER, ComponentType::PHYSICS_BODY }));
+    components->renderers[newEntityID].texture = boxTexture;
+    components->renderers[newEntityID].sprite = boxSprite;
+    components->renderers[newEntityID].isFlipped = false;
+    components->renderers[newEntityID].renderingOrder = 1;
+    pos = Vector2f(1000, 300);
+    components->transforms[newEntityID].position = pos;
+    //components->physicsBodies[newEntityID].velocity = Vector2f(500, 0);
+    components->physicsBodies[newEntityID].gravityAccel = Vector2f(0, GRAV);
+    components->physicsBodies[newEntityID].bounds = Rect<float>(boxSprite.getGlobalBounds());
+    components->physicsBodies[newEntityID].hasGravity = true;
+    components->physicsBodies[newEntityID].isStatic = false;
+    components->physicsBodies[newEntityID].isOnGround = false;
+    
 
     ecs.GameLoop();
 }
@@ -532,6 +660,7 @@ int main()
     //Benchmark();
     //Game();
     TechDemo();
+    //BoxDrop();
 
     return 0;
 }
