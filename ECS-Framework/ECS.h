@@ -40,6 +40,8 @@ private:
 	int numEntities;
 	Entity entitiesList[MAX_ENTITIES];
 	Components components;
+	Color backgroundColor;
+	bool isDebugMode;
 
 	void PhysicsUpdate(float delta);
 	void RenderingUpdate(float delta, RenderWindow& window);
@@ -69,6 +71,12 @@ public:
 	int AddEntity(ComponentsMask mask);
 
 	Components* GetComponents();
+
+	void SetBackgroundColor(Color color);
+	Color GetBackgroundColor();
+
+	void SetDebugMode(bool isDebug);
+	bool GetDebugMode();
 
 	void GameLoop();
 };

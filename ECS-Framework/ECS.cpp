@@ -7,6 +7,8 @@
 ECS::ECS()
 {
 	numEntities = 0;
+	backgroundColor = Color(0, 0, 0, 255);
+	isDebugMode = false;
 }
 
 ECS::ECS
@@ -19,6 +21,10 @@ ECS::ECS
 	int size
 )
 {
+	numEntities = 0;
+	backgroundColor = Color(0, 0, 0, 255);
+	isDebugMode = false;
+
 	numEntities = std::min(MAX_ENTITIES, size);
 	for (int i = 0; i < numEntities; i++)
 	{
@@ -72,6 +78,26 @@ int ECS::AddEntity(ComponentsMask mask)
 Components* ECS::GetComponents()
 {
 	return &components;
+}
+
+void ECS::SetBackgroundColor(Color color)
+{
+	backgroundColor = color;
+}
+
+Color ECS::GetBackgroundColor()
+{
+	return backgroundColor;
+}
+
+void ECS::SetDebugMode(bool isDebug)
+{
+	isDebugMode = isDebug;
+}
+
+bool ECS::GetDebugMode()
+{
+	return isDebugMode;
 }
 
 void ECS::PhysicsUpdate(float delta)
@@ -255,7 +281,7 @@ void ECS::RenderingUpdate(float delta, RenderWindow& window)
 	std::sort(compList.begin(), compList.end(), Renderer::PointerCompare());
 
 	// draw to screen
-	window.clear();
+	window.clear(backgroundColor);
 	for (int i = 0; i < compList.size(); ++i)
 	{
 		Renderer* currRend = compList[i];
@@ -345,6 +371,12 @@ void ECS::GameLoop()
 		std::chrono::duration<double> elapsedTime =
 			std::chrono::duration_cast<std::chrono::duration<float>>(time - lastTime);
 		float deltaTime = elapsedTime.count();
+
+		if (isDebugMode)
+		{
+			std::cout << (1.0f / deltaTime) << std::endl;
+		}
+
 		MovementUpdate(deltaTime, event);
 		PhysicsUpdate(deltaTime);
 		CameraUpdate(deltaTime, window);
