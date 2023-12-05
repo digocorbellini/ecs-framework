@@ -17,7 +17,7 @@ int Benchmark()
     int newEntityID;
     Vector2f pos;
 
-    ecs.SetDebugMode(true);
+    ecs.SetDebugMode(false);
 
     // create falling boxes
     Texture boxTexture = Texture();
