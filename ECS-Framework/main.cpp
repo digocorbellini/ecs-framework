@@ -657,9 +657,9 @@ int main()
     int newEntityID;
     Vector2f pos;
 
-    //Benchmark();
+    Benchmark();
     //Game();
-    TechDemo();
+    //TechDemo();
     //BoxDrop();
 
     return 0;

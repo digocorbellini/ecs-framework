@@ -4,7 +4,7 @@
 
 using namespace sf;
 
-#define MAX_ENTITIES 10000
+#define MAX_ENTITIES 5000
 
 const ComponentsMask PHYSICS_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::PHYSICS_BODY });
 const ComponentsMask RENDERER_MASK({ ComponentType::ENTITY_TRANSFORM, ComponentType::RENDERER });
