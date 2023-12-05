@@ -157,7 +157,7 @@ void TechDemo()
     Vector2f pos;
 
     ecs.SetBackgroundColor(Color(207, 239, 252, 255));
-    ecs.SetDebugMode(true);
+    ecs.SetDebugMode(false);
 
     // load images
     Texture grassTexture = Texture();
@@ -657,9 +657,10 @@ int main()
     int newEntityID;
     Vector2f pos;
 
-    Benchmark();
+    // scenes
+    //Benchmark();
     //Game();
-    //TechDemo();
+    TechDemo();
     //BoxDrop();
 
     return 0;

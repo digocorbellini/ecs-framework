@@ -14,6 +14,7 @@ EiD: ro7929
 3) Launch the Visual Studio project found in '/ECS-Framework/ECS-Framework.sln'
 4) After trying to run the project, go to '/ECS-Framework/x64/Debug' and place all of the dlls found in `../SFML-2.6.1/lib` here
 5) Run the project and play the game!
+6) If you would like to change the scene that the game is running, go to `main.cpp` and in `main()` comment out the current scene and uncomment the one you would like to see run.
 
 ## How to run premade builds
 

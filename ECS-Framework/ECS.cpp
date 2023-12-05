@@ -357,7 +357,7 @@ void ECS::CameraUpdate(float delta, RenderWindow& window)
 
 void ECS::GameLoop()
 {
-	RenderWindow window(VideoMode(1920, 1080), "SFML works!");
+	RenderWindow window(VideoMode(1920, 1080), "ECS Demo");
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	while (window.isOpen())
 	{
