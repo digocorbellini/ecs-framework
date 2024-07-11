@@ -5,9 +5,9 @@ Now maintained and updated by Rodrigo Okamoto Corbellini Pereira.
 
 ## How to Build and Run 
 1) Download the [SFML 2.6.1](https://www.sfml-dev.org/download.php)
-2) Place the `SFML-2.6.1` directory in the following path relative to this project: `../SFML-2.6.1`
+2) Place the `SFML-2.6.1` directory in the following path relative to this project (NOT relative to the .sln file): `../SFML-2.6.1`
 3) Launch the Visual Studio project found in `/ECS-Framework/ECS-Framework.sln`
-4) After trying to run the project, go to `/ECS-Framework/x64/Debug` and place all of the dlls found in `../SFML-2.6.1/lib` here
+4) After trying to run the project, go to `/ECS-Framework/x64/Debug` and place all of the dlls found in `../SFML-2.6.1/bin` here (dlls containing "-d" are for debug and the others are for release)
 5) Run the project and play the game!
 6) If you would like to change the scene that the game is running, go to `/ECS-Framework/main.cpp` and in `main()` comment out the current scene and uncomment the one you would like to see run.
 
